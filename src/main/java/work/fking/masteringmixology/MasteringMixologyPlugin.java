@@ -32,11 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static work.fking.masteringmixology.AlchemyObject.AGA_LEVER;
 import static work.fking.masteringmixology.AlchemyObject.LYE_LEVER;
@@ -435,20 +431,17 @@ public class MasteringMixologyPlugin extends Plugin {
             return;
         }
 
-        int indexOffset = 0;
+        children = Arrays.stream(children)
+                .skip(1).filter(widget ->
+                        widget.getType() == WidgetType.GRAPHIC || widget.getType() == WidgetType.TEXT)
+                .toArray(Widget[]::new);
+
         for (int i = 0; i < potionOrders.size(); i++) {
             var order = potionOrders.get(i);
 
-            var orderGraphic = children[order.idx() * 2 + 1 + indexOffset];
-            var orderText = children[order.idx() * 2 + 2 + indexOffset];
+            var orderGraphic = children[order.idx() * 2];
+            var orderText = children[order.idx() * 2 + 1];
 
-            // If anyone still has orders they don't have the herblore level to deliver there's an extra RECTANGLE component which
-            // causes the idx calculations to select the wrong components
-            if (orderGraphic.getType() != WidgetType.GRAPHIC || orderText.getType() != WidgetType.TEXT) {
-                indexOffset++;
-                orderGraphic = children[order.idx() * 2 + 1 + indexOffset];
-                orderText = children[order.idx() * 2 + 2 + indexOffset];
-            }
             var builder = new StringBuilder(orderText.getText());
 
             if (order.fulfilled()) {
